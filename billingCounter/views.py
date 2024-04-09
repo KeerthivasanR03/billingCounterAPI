@@ -1,23 +1,29 @@
 from rest_framework import viewsets, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.models import User, Group
 from django.db.models import Sum
 from .models import Product, Bill, OrderedProduct
 from .serializers import UserSerializer, ProductSerializer, BillSerializer, OrderedProductSerializer
 
 class UserViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
 class OrderedProductViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset = OrderedProduct.objects.all()
     serializer_class = OrderedProductSerializer
 
 class BillViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsAuthenticated,)
     queryset= Bill.objects.all()
     serializer_class = BillSerializer
     # def create(self, request):
@@ -48,3 +54,15 @@ class BillViewSet(viewsets.ModelViewSet):
 
     #     bill_serializer = BillSerializer(bill)
     #     return Response(bill_serializer.data, status=status.HTTP_201_CREATED)
+
+class LogoutView(APIView):
+     permission_classes = (IsAuthenticated,)
+     def post(self, request):
+          
+          try:
+               refresh_token = request.data["refresh_token"]
+               token = RefreshToken(refresh_token)
+               token.blacklist()
+               return Response(status=status.HTTP_205_RESET_CONTENT)
+          except Exception as e:
+               return Response(status=status.HTTP_400_BAD_REQUEST)
